@@ -1,0 +1,31 @@
+version: "3"
+services:
+    web:
+        build: .
+        ports:
+            - "8000:80"
+        depends_on:
+            - hangfire-db
+            - identity-db
+            - locator-db
+            
+    hangfire-db:
+        image: postgres
+        restart: always
+        environment:
+            POSTGRES_PASSWORD: hangfire-db-pass
+            POSTGRES_USER: hangfire-db
+        
+    identity-db:
+        image: postgres
+        restart: always
+        environment:
+            POSTGRES_PASSWORD: identity-db-pass
+            POSTGRES_USER: identity-db
+        
+    locator-db:
+        image: postgres
+        restart: always
+        environment:
+            POSTGRES_PASSWORD: locator-db-pass
+            POSTGRES_USER: locator-db
