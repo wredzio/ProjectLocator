@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  projectlocator:
+    image: projectlocator
+    build:
+      context: ./ProjectLocator
+      dockerfile: Dockerfile
+    depends_on:
+      - hangfire-db
+      - identity-db
+      - application-db
+                   
+  hangfire-db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: hangfire-db-pass
+      POSTGRES_USER: hangfire-db
+        
+  identity-db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: identity-db-pass
+      POSTGRES_USER: identity-db
+        
+  application-db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: application-db-pass
+      POSTGRES_USER: application-db
