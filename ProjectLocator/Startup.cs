@@ -15,6 +15,10 @@ using ProjectLocator.Areas.Identity.Models;
 using Hangfire.PostgreSql;
 using Hangfire;
 using ProjectLocator.Areas.Identity.ConfigureServices;
+using NLog.Web;
+using System.Text;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 
 namespace ProjectLocator
 {
@@ -87,8 +91,15 @@ namespace ProjectLocator
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, RoleManager<ApplicationRole> roleManager)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env,
+            RoleManager<ApplicationRole> roleManager, ILoggerFactory loggerFactory)
         {
+            env.ConfigureNLog("nlog.config");
+            loggerFactory.AddNLog();
+
+            //add NLog.Web
+            app.AddNLogWeb();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
