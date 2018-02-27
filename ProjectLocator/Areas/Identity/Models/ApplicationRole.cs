@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ProjectLocator.Areas.Identity.Models
 {
-    public class ApplicationRole : IdentityRole<int>
+    public class ApplicationRole : IdentityRole<long>
     {
         public ApplicationRole() : base() { }
 

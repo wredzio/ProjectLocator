@@ -18,11 +18,13 @@ namespace ProjectLocator.Shared.Database
             IConfigurationRoot configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json")
+                .AddJsonFile("appsettings.Development.json")
+                .AddEnvironmentVariables()
                 .Build();
 
             var builder = new DbContextOptionsBuilder<T>();
             var connectionString = configuration.GetConnectionString(_databaseName);
-            builder.UseSqlServer(connectionString);
+            builder.UseNpgsql(connectionString);
             var dbContext = (T)Activator.CreateInstance(
                 typeof(T),
                 builder.Options);

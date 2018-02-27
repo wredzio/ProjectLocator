@@ -19,6 +19,7 @@ using NLog.Web;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using ProjectLocator.Shared.Middlewares;
 
 namespace ProjectLocator
 {
@@ -38,7 +39,7 @@ namespace ProjectLocator
                     options.UseNpgsql(Configuration.GetConnectionString("ApplicationConnection")));
 
             services.AddDbContext<IdentityContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("IdentityConnection")));
+                options.UseNpgsql(Configuration.GetConnectionString("IdentityConnection")));
 
             services.AddIdentity<ApplicationUser, ApplicationRole>()
                 .AddEntityFrameworkStores<IdentityContext>()
@@ -67,16 +68,7 @@ namespace ProjectLocator
 
             services.AddMvc();
             services.AddLogging();
-
-            var sqlServerStorageOptions = new PostgreSqlStorageOptions
-            {
-                QueuePollInterval = TimeSpan.FromSeconds(5),
-            };
-
-            services.AddHangfire(config =>
-                config.UsePostgreSqlStorage(Configuration.GetConnectionString("HangfireConnection"), sqlServerStorageOptions));
-
-            JobStorage.Current = new PostgreSqlStorage(Configuration.GetConnectionString("HangfireConnection"));
+            AddHangfire(services);
 
             //services.AddEmailsService();
             //services.AddApplicationService();
@@ -88,6 +80,20 @@ namespace ProjectLocator
             {
                 options.FileProviders.Add(fileProvider);
             });
+
+        }
+
+        private void AddHangfire(IServiceCollection services)
+        {
+            var sqlServerStorageOptions = new PostgreSqlStorageOptions
+            {
+                QueuePollInterval = TimeSpan.FromSeconds(5),
+            };
+
+            services.AddHangfire(config =>
+                config.UsePostgreSqlStorage(Configuration.GetConnectionString("HangfireConnection"), sqlServerStorageOptions));
+
+            JobStorage.Current = new PostgreSqlStorage(Configuration.GetConnectionString("HangfireConnection"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -96,43 +102,30 @@ namespace ProjectLocator
         {
             env.ConfigureNLog("nlog.config");
             loggerFactory.AddNLog();
-
-            //add NLog.Web
             app.AddNLogWeb();
 
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                //app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
-                //{
-                //    HotModuleReplacement = true
-                //});
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler();
             }
 
             app.UseStatusCodePagesWithReExecute("/error/{0}");
             app.UseStaticFiles();
             app.UseAuthentication();
+
             app.UseHangfireDashboard("/hangfire");
             app.UseHangfireServer();
+
+            app.UseMiddleware(typeof(ErrorHandlingMiddleware));
+            app.UseMiddleware(typeof(LoggerMiddleware));
+
+            app.UseMvc();
+
             roleManager.SeedRoles().Wait();
-
-            //app.UseMiddleware(typeof(ErrorHandlingMiddleware));
-            //app.UseMiddleware(typeof(LoggerMiddleware));
-
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
-
-                routes.MapSpaFallbackRoute(
-                    name: "spa-fallback",
-                    defaults: new { controller = "Home", action = "Index" });
-            });
         }
     }
 }

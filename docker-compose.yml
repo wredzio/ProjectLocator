@@ -3,6 +3,10 @@ version: '3'
 services:
   projectlocator:
     image: projectlocator
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Staging
+    ports:
+      - "8080:80"
     build:
       context: ./ProjectLocator
       dockerfile: Dockerfile
@@ -14,20 +18,40 @@ services:
   hangfire-db:
     image: postgres
     restart: always
+    volumes:
+      - postgres_hangfire:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: hangfire-db-pass
       POSTGRES_USER: hangfire-db
+    ports:
+      - "48010:5432"
         
   identity-db:
     image: postgres
     restart: always
+    volumes:
+      - postgres_identity:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: identity-db-pass
       POSTGRES_USER: identity-db
+    ports:
+      - "48011:5432"
         
   application-db:
     image: postgres
     restart: always
+    volumes:
+      - postgres_application:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: application-db-pass
       POSTGRES_USER: application-db
+    ports:
+      - "48012:5432"
+    
+volumes:
+  postgres_hangfire:
+    driver: "local"
+  postgres_identity:
+    driver: "local"
+  postgres_application:
+    driver: "local"

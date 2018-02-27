@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ProjectLocator.Areas.Identity.DatabaseContext
 {
-    public class IdentityContext : IdentityDbContext<ApplicationUser, ApplicationRole, int>
+    public class IdentityContext : IdentityDbContext<ApplicationUser, ApplicationRole, long>
     {
         public IdentityContext(DbContextOptions<IdentityContext> options)
             : base(options)

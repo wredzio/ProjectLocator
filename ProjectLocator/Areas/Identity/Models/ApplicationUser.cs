@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ProjectLocator.Areas.Identity.Models
 {
-    public class ApplicationUser : IdentityUser<int>
+    public class ApplicationUser : IdentityUser<long>
     {
     }
 }
