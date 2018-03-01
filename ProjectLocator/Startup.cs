@@ -20,6 +20,10 @@ using System.Text;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using ProjectLocator.Shared.Middlewares;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using ProjectLocator.Shared.MediatR;
+using FluentValidation.AspNetCore;
 
 namespace ProjectLocator
 {
@@ -33,7 +37,7 @@ namespace ProjectLocator
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationContext>(options =>
                     options.UseNpgsql(Configuration.GetConnectionString("ApplicationConnection")));
@@ -66,7 +70,9 @@ namespace ProjectLocator
                 options.SlidingExpiration = true;
             });
 
-            services.AddMvc();
+            services.AddMvc()
+                .AddFluentValidation(fvc => fvc.RegisterValidatorsFromAssemblyContaining<Startup>())
+                .AddControllersAsServices();
             services.AddLogging();
             AddHangfire(services);
 
@@ -81,6 +87,14 @@ namespace ProjectLocator
                 options.FileProviders.Add(fileProvider);
             });
 
+            var builder = new ContainerBuilder();
+            builder.Populate(services);
+
+            builder.ConfigureMediatR();
+
+            var container = builder.Build();
+
+            return new AutofacServiceProvider(container);
         }
 
         private void AddHangfire(IServiceCollection services)
