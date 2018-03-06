@@ -15,7 +15,9 @@ namespace ProjectLocator.Shared.MediatR
             var mediatorOpenTypes = new[]
             {
                 typeof(IRequestHandler<,>),
-                typeof(IRequestHandler<>)
+                typeof(IRequestHandler<>),
+                typeof(AsyncRequestHandler<,>),
+                typeof(AsyncRequestHandler<>)
             };
 
             foreach(var mediatorOpenType in mediatorOpenTypes)

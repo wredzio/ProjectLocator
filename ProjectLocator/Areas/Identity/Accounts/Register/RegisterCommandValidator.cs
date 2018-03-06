@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace ProjectLocator.Areas.Identity.Accounts.Register
 {
-    internal class RegisterValidator : AbstractValidator<RegisterCommand>
+    internal class RegisterCommandValidator : AbstractValidator<RegisterCommand>
     {
-        internal RegisterValidator()
+        internal RegisterCommandValidator()
         {
             RuleFor(register => register.FirstName).NotEmpty();
         }

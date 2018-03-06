@@ -1,11 +1,12 @@
-﻿using System;
+﻿using MediatR;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace ProjectLocator.Areas.Identity.Accounts.Register
 {
-    public class RegisterCommand
+    public class RegisterCommand : IRequest<long>
     {
         public string FirstName { get; set; }
         public string SecondName { get; set; }

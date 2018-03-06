@@ -24,6 +24,8 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using ProjectLocator.Shared.MediatR;
 using FluentValidation.AspNetCore;
+using ProjectLocator.Areas.Identity.Accounts.Register;
+using MediatR;
 
 namespace ProjectLocator
 {
@@ -87,9 +89,14 @@ namespace ProjectLocator
                 options.FileProviders.Add(fileProvider);
             });
 
+            services.AddScoped<IMediator, Mediator>();
+            services.AddTransient<SingleInstanceFactory>(sp => t => sp.GetService(t));
+            services.AddTransient<MultiInstanceFactory>(sp => t => sp.GetServices(t));
+
             var builder = new ContainerBuilder();
             builder.Populate(services);
 
+            builder.RegisterType<RegisterCommandApplicationUserMapper>().As<IMapper<RegisterCommand, ApplicationUser>>();
             builder.ConfigureMediatR();
 
             var container = builder.Build();
